@@ -1,6 +1,7 @@
 Name:               hskonfidence
 Version:            0.0.1
 Author:             Matt Hink
+Maintainer:         mhink1103@gmail.com
 Homepage:           http://www.github.com/mhink/hskonfidence
 Synopsis:           Confidence? interpreter written in Haskell
 Build-type:         Simple
@@ -13,3 +14,4 @@ Source-repository head
 Executable hskonf
   main-is:          Main.hs
   other-modules:    Hskonfidence.Lexer
+  build-depends:    base
