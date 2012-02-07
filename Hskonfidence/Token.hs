@@ -42,7 +42,8 @@ module Hskonfidence.Token
     TokenFLOLIT  Float     | --T36 Float literal         [0-9]+\.[0-9]*
     TokenCHRLIT  Char      | --T37 Char literal          '[a-zA-Z]'
     TokenSTRLIT  String    | --T38 String literal        "[a-zA-Z]*"
-    TokenEOF
+    TokenEOF |
+    TokenERROR
       deriving (
         Show
       )
