@@ -52,30 +52,22 @@ module Hskonfidence.Lexer
   lexer _ = [ TokenERROR ]
 
   lexIdent :: String -> [Token]
-  lexIdent (c:cs) = 
-      let
-        identString = c:cs
-        result      = lexIdent' identString
-      in 
-        if isJust (result)
-        then 
-          let
-            pairFromJust = fromJust (result)
-            identString  = fst (pairFromJust)
-            restString   = snd (pairFromJust)
-          in
-            TokenIDENT (identString) : lexer (restString)
-        else [TokenERROR]
+  lexIdent str = 
+      case lexIdent' (str) of
+        Nothing -> [TokenERROR]
+        Just result ->
+          let (resultStr, restOfStr) = result
+          in  TokenIDENT (resultStr) : lexer (restOfStr) 
 
   lexIdent' :: String -> Maybe (String, String)
-  lexIdent' [] = Just ([], [])
+  lexIdent' "" = Just ("", "")
   lexIdent' (c:cs)
-    | isSpace c             = Just ([], cs)       --end recursion successfully
-    | not (isAlphaNum (c) ) = Nothing             --end recursion unsuccessfully
-    | otherwise =
+    | isAlphaNum c =             --continue recursion 
         case lexIdent' cs of
-          Nothing             -> Nothing          --pass Nothing back up stack
-          Just (id, rest) -> Just (c:id, rest)    --pass cons'ed string up stack
+          Just (id, rest) -> Just (c:id, rest)
+          Nothing         -> Nothing
+    | isSpace c = Just ([], cs)  --end recursion successfully
+    | otherwise = Nothing        --end recursion unsuccessfully
 
   lexNumer :: String -> [Token]
   lexNumer (c:cs) = TokenERROR : lexer cs
