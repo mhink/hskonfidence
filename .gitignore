@@ -7,3 +7,4 @@ cabal-dev
 .*.swp
 .*.swo
 hskonf
+.DS_Store
