@@ -7,10 +7,18 @@ module Hskonfidence.Token
   data Token = Token TokenType String
 
   instance Show Token where
+    show (Token ERROR lexeme) = 
+      (show lexeme) ++ " **unrecognized lexeme"
     show (Token tokenType lexeme) = 
-      (show lexeme) ++ " Token" ++ (show tokenType) ++ " " ++ (show $ fromEnum $ tokenType) ++ "\n"
+      (show lexeme) ++ " Token" ++ (show tokenType) ++ " " ++ (show $ fromEnum $ tokenType)
+
+    showList [] = showString ""
+    showList (x:xs) = shows x . showl xs
+                      where showl [] = showChar ' '
+                            showl (x:xs) = showChar '\n' . shows x . showl xs
 
   data TokenType = 
+    Reserved          | --T0  UNUSED
     LPAREN            | --T1  Left Parenthesis      (
     RPAREN            | --T2  Right Parenthesis     )
     LBRACK            | --T3  Left Bracket          [

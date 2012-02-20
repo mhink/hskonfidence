@@ -1,0 +1,65 @@
+"-------------------------KEYWORDS" TokenSTRLIT 38
+"whilst" TokenWHILST 32
+"write" TokenWRITE 33
+"float" TokenFLOAT 28
+"maybe" TokenMAYBE 29
+"array" TokenARRAY 26
+"char" TokenCHAR 27
+"isis" TokenTEQ 16
+"isnt" TokenNE 17
+"read" TokenREAD 31
+"and" TokenAND 22
+"int" TokenINT 30
+"not" TokenNOT 24
+"or" TokenOR 23
+"is" TokenASSIGN 15
+"//" TokenFDIV 13
+"<=" TokenLE 18
+">=" TokenGE 20
+"(" TokenLPAREN 1
+")" TokenRPAREN 2
+"[" TokenLBRACK 3
+"]" TokenRBRACK 4
+"{" TokenLBRACE 5
+"}" TokenRBRACE 6
+"," TokenCOMMA 7
+"_" TokenNEG 8
+"+" TokenPLUS 9
+"-" TokenMINUS 10
+"*" TokenTIMES 11
+"/" TokenDIV 12
+"%" TokenMOD 14
+"<" TokenTLT 19
+">" TokenTGT 21
+"?" TokenTERM 25
+"-------------------------CHARACTER LITERALS" TokenSTRLIT 38
+"a" TokenCHRLIT 37
+"z" TokenCHRLIT 37
+"0" TokenCHRLIT 37
+"9" TokenCHRLIT 37
+"'thiswontwork'" **unrecognized lexeme
+"'this" **unrecognized lexeme
+"will" TokenIDENT 34
+"be" TokenIDENT 34
+"lexed" TokenIDENT 34
+"wrong'" **unrecognized lexeme
+"-------------------------INTEGER LITERALS" TokenSTRLIT 38
+"10" TokenINTLIT 35
+"100" TokenINTLIT 35
+"10000000000" TokenINTLIT 35
+"1234567890" TokenINTLIT 35
+"555thiswontwork333" **unrecognized lexeme
+"-------------------------STRING LITERALS... OH WAIT" TokenSTRLIT 38
+"     " TokenSTRLIT 38
+"blah blah blah" TokenSTRLIT 38
+"-------------------------FLOAT LITERALS" TokenSTRLIT 38
+"50.4" TokenFLOLIT 36
+"20.2" TokenFLOLIT 36
+"20.2.2" **unrecognized lexeme
+"2f.00" **unrecognized lexeme
+"2.0f" **unrecognized lexeme
+"-------------------------IDENTIFIERS" TokenSTRLIT 38
+"thisIsInCamelCase" TokenIDENT 34
+"this2IsInCamelCase" TokenIDENT 34
+"thisw1llW0rk" TokenIDENT 34
+"butThi$Wi||Not" **unrecognized lexeme 

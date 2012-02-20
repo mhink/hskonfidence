@@ -1,0 +1,46 @@
+"-------------------------KEYWORDS"
+whilst
+write
+float
+maybe
+array
+char
+isis
+isnt
+read
+and
+int
+not
+or
+is
+//
+<=
+>=
+()[]{},_+-*/%<>?
+"-------------------------CHARACTER LITERALS"
+'a'
+'z'
+'0'
+'9'
+'thiswontwork'
+'this will be lexed wrong'
+"-------------------------INTEGER LITERALS"
+10
+100
+10000000000
+1234567890
+555thiswontwork333
+"-------------------------STRING LITERALS... OH WAIT"
+"     "
+"blah blah blah"
+"-------------------------FLOAT LITERALS"
+50.4
+20.2
+20.2.2
+2f.00
+2.0f
+"-------------------------IDENTIFIERS"
+thisIsInCamelCase
+this2IsInCamelCase
+thisw1llW0rk
+butThi$Wi||Not
