@@ -1,49 +1,54 @@
 module Hskonfidence.Token
   (
-    Token(..)     ,
+    Token(..),
+    TokenType(..)
   ) where
 
-  data Token = 
-    TokenLPAREN            | --T1  Left Parenthesis      (
-    TokenRPAREN            | --T2  Right Parenthesis     )
-    TokenLBRACK            | --T3  Left Bracket          [
-    TokenRBRACK            | --T4  Right Bracket         ]
-    TokenLBRACE            | --T5  Left Brace            {
-    TokenRBRACE            | --T6  Right Brace           }
-    TokenCOMMA             | --T7  Comma                 ,
-    TokenNEG               | --T8  Unary negation        _ (underscore)
-    TokenPLUS              | --T9  Addition operator     +
-    TokenMINUS             | --T10 Subtraction operator  -
-    TokenTIMES             | --T11 Multiply operator     *
-    TokenDIV               | --T12 Integer division op.  /
-    TokenFDIV              | --T13 Float division op.    //
-    TokenMOD               | --T14 Modulo operator       %
-    TokenASSIGN            | --T15 Assignment operator   is
-    TokenEQ               | --T16 Equality operator     isis
-    TokenNE               | --T17 Inequality operator   isnt
-    TokenLE               | --T18 Less-than-equals op.  <=
-    TokenLT               | --T19 Less-than op.         <
-    TokenGE               | --T20 Greater-than-equals   >=
-    TokenGT               | --T21 Greater-than op.      >
-    TokenAND               | --T22 Boolean AND op.       and
-    TokenOR                | --T23 Boolean OR op.        or
-    TokenNOT               | --T24 Boolean NOT op.       not
-    TokenTERM              | --T25 Line terminator       ?
-    TokenARRAY             | --T26 Array keyword         array
-    TokenCHAR              | --T27 Character primitive   char
-    TokenFLOAT             | --T28 Float primitive ind.  float
-    TokenMAYBE             | --T29 if-statement          maybe
-    TokenINT               | --T30 Integer primitive     int
-    TokenREAD              | --T31 Read from stream      read
-    TokenWHILST            | --T32 while-loop            whilst
-    TokenWRITE             | --T33 Write to stream       write
-    TokenIDENT   String    | --T34 Identifier            [a-zA-Z][0-9a-zA-Z]*
-    TokenINTLIT  Integer   | --T35 Integer literal       [0-9]+
-    TokenFLOLIT  Float     | --T36 Float literal         [0-9]+\.[0-9]*
-    TokenCHRLIT  Char      | --T37 Char literal          '[a-zA-Z]'
-    TokenSTRLIT  String    | --T38 String literal        "[a-zA-Z]*"
-    TokenEOF |
-    TokenERROR
-      deriving (
-        Show
-      )
+  data Token = Token TokenType String
+
+  instance Show Token where
+    show (Token tokenType lexeme) = 
+      (show lexeme) ++ " Token" ++ (show tokenType) ++ " " ++ (show $ fromEnum $ tokenType) ++ "\n"
+
+  data TokenType = 
+    LPAREN            | --T1  Left Parenthesis      (
+    RPAREN            | --T2  Right Parenthesis     )
+    LBRACK            | --T3  Left Bracket          [
+    RBRACK            | --T4  Right Bracket         ]
+    LBRACE            | --T5  Left Brace            {
+    RBRACE            | --T6  Right Brace           }
+    COMMA             | --T7  Comma                 ,
+    NEG               | --T8  Unary negation        _ (underscore)
+    PLUS              | --T9  Addition operator     +
+    MINUS             | --T10 Subtraction operator  -
+    TIMES             | --T11 Multiply operator     *
+    DIV               | --T12 Integer division op.  /
+    FDIV              | --T13 Float division op.    //
+    MOD               | --T14 Modulo operator       %
+    ASSIGN            | --T15 Assignment operator   is
+    TEQ                | --T16 Equality operator     isis
+    NE                | --T17 Inequality operator   isnt
+    LE                | --T18 Less-than-equals op.  <=
+    TLT                | --T19 Less-than op.         <
+    GE                | --T20 Greater-than-equals   >=
+    TGT                | --T21 Greater-than op.      >
+    AND               | --T22 Boolean AND op.       and
+    OR                | --T23 Boolean OR op.        or
+    NOT               | --T24 Boolean NOT op.       not
+    TERM              | --T25 Line terminator       ?
+    ARRAY             | --T26 Array keyword         array
+    CHAR              | --T27 Character primitive   char
+    FLOAT             | --T28 Float primitive ind.  float
+    MAYBE             | --T29 if-statement          maybe
+    INT               | --T30 Integer primitive     int
+    READ              | --T31 Read from stream      read
+    WHILST            | --T32 while-loop            whilst
+    WRITE             | --T33 Write to stream       write
+    IDENT             | --T34 Identifier            [a-zA-Z][0-9a-zA-Z]*
+    INTLIT            | --T35 Integer literal       [0-9]+
+    FLOLIT            | --T36 Float literal         [0-9]+\.[0-9]*
+    CHRLIT            | --T37 Char literal          '[a-zA-Z]'
+    STRLIT            | --T38 String literal        "[a-zA-Z]*"
+    EOF               |
+    ERROR
+      deriving (Show, Enum)

@@ -3,5 +3,9 @@
 #### Author: Matt Hink
 #### Class: CSE4713 Programming Languages
 ***
-This is the README for hskconfidence.  
-It will be filled in as work is finished on the interpreter.
+
+Usage:
+
+./hskonf
+
+Reads standard input, and writes the result of lexical analysis to standard output.

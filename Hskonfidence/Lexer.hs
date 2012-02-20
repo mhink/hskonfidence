@@ -3,8 +3,6 @@ module Hskonfidence.Lexer
     lexer,
     lexIdent,
     lexIdent',
-    lexNumer,
-    lexNumer'
   ) where
 
   import Hskonfidence.Token
@@ -13,75 +11,78 @@ module Hskonfidence.Lexer
   import Data.Maybe
 
   lexer :: String -> [Token]
-  lexer ('w':'h':'i':'l':'s':'t':cs)     = TokenWHILST    : lexer cs
-  lexer ('w':'r':'i':'t':'e':cs)         = TokenWRITE     : lexer cs
-  lexer ('f':'l':'o':'a':'t':cs)         = TokenFLOAT     : lexer cs
-  lexer ('m':'a':'y':'b':'e':cs)         = TokenMAYBE     : lexer cs
-  lexer ('a':'r':'r':'a':'y':cs)         = TokenARRAY     : lexer cs
-  lexer ('c':'h':'a':'r':cs)             = TokenCHAR      : lexer cs
-  lexer ('i':'s':'i':'s':cs)             = TokenEQ        : lexer cs
-  lexer ('i':'s':'n':'t':cs)             = TokenNE        : lexer cs
-  lexer ('r':'e':'a':'d':cs)             = TokenREAD      : lexer cs
-  lexer ('a':'n':'d':cs)                 = TokenAND       : lexer cs
-  lexer ('i':'n':'t':cs)                 = TokenINT       : lexer cs
-  lexer ('n':'o':'t':cs)                 = TokenNOT       : lexer cs
-  lexer ('o':'r':cs)                     = TokenOR        : lexer cs
-  lexer ('i':'s':cs)                     = TokenASSIGN    : lexer cs
-  lexer ('/':'/':cs)                     = TokenFDIV      : lexer cs
-  lexer ('<':'=':cs)                     = TokenLE        : lexer cs
-  lexer ('>':'=':cs)                     = TokenGE        : lexer cs
-  lexer ('(':cs)                         = TokenLPAREN    : lexer cs
-  lexer (')':cs)                         = TokenRPAREN    : lexer cs
-  lexer ('[':cs)                         = TokenLBRACK    : lexer cs
-  lexer (']':cs)                         = TokenRBRACK    : lexer cs
-  lexer ('{':cs)                         = TokenLBRACE    : lexer cs
-  lexer (',':cs)                         = TokenCOMMA     : lexer cs
-  lexer ('_':cs)                         = TokenNEG       : lexer cs
-  lexer ('+':cs)                         = TokenPLUS      : lexer cs
-  lexer ('-':cs)                         = TokenMINUS     : lexer cs
-  lexer ('*':cs)                         = TokenTIMES     : lexer cs
-  lexer ('/':cs)                         = TokenDIV       : lexer cs
-  lexer ('%':cs)                         = TokenMOD       : lexer cs
-  lexer ('<':cs)                         = TokenLT        : lexer cs
-  lexer ('>':cs)                         = TokenGT        : lexer cs
-  lexer ('?':cs)                         = TokenTERM      : lexer cs
+  lexer ('w':'h':'i':'l':'s':'t':cs)     = Token WHILST "whilst" : lexer cs
+  lexer ('w':'r':'i':'t':'e':cs)         = Token WRITE "write"     : lexer cs
+  lexer ('f':'l':'o':'a':'t':cs)         = Token FLOAT "float"     : lexer cs
+  lexer ('m':'a':'y':'b':'e':cs)         = Token MAYBE "maybe"     : lexer cs
+  lexer ('a':'r':'r':'a':'y':cs)         = Token ARRAY "array"     : lexer cs
+  lexer ('c':'h':'a':'r':cs)             = Token CHAR "char"      : lexer cs
+  lexer ('i':'s':'i':'s':cs)             = Token TEQ "isis"        : lexer cs
+  lexer ('i':'s':'n':'t':cs)             = Token NE "isnt"        : lexer cs
+  lexer ('r':'e':'a':'d':cs)             = Token READ "read"      : lexer cs
+  lexer ('a':'n':'d':cs)                 = Token AND "and"       : lexer cs
+  lexer ('i':'n':'t':cs)                 = Token INT "int"       : lexer cs
+  lexer ('n':'o':'t':cs)                 = Token NOT "not"       : lexer cs
+  lexer ('o':'r':cs)                     = Token OR "or"        : lexer cs
+  lexer ('i':'s':cs)                     = Token ASSIGN "is"    : lexer cs
+  lexer ('/':'/':cs)                     = Token FDIV "//"      : lexer cs
+  lexer ('<':'=':cs)                     = Token LE "<="        : lexer cs
+  lexer ('>':'=':cs)                     = Token GE ">="        : lexer cs
+  lexer ('(':cs)                         = Token LPAREN "("    : lexer cs
+  lexer (')':cs)                         = Token RPAREN ")"   : lexer cs
+  lexer ('[':cs)                         = Token LBRACK "["    : lexer cs
+  lexer (']':cs)                         = Token RBRACK "]"    : lexer cs
+  lexer ('{':cs)                         = Token LBRACE "{"    : lexer cs
+  lexer ('}':cs)                         = Token RBRACE "}"    : lexer cs
+  lexer (',':cs)                         = Token COMMA ","     : lexer cs
+  lexer ('_':cs)                         = Token NEG "_"       : lexer cs
+  lexer ('+':cs)                         = Token PLUS "+"      : lexer cs
+  lexer ('-':cs)                         = Token MINUS "-"     : lexer cs
+  lexer ('*':cs)                         = Token TIMES "*"     : lexer cs
+  lexer ('/':cs)                         = Token DIV "/"       : lexer cs
+  lexer ('%':cs)                         = Token MOD "%"       : lexer cs
+  lexer ('<':cs)                         = Token TLT "<"        : lexer cs
+  lexer ('>':cs)                         = Token TGT ">"        : lexer cs
+  lexer ('?':cs)                         = Token TERM "?"     : lexer cs
   lexer [] = []
 
-  lexer ('\'':c:'\'':cs)                 = TokenCHRLIT c : lexer cs
+  lexer ('\'':c:'\'':cs)                 = Token CHRLIT [c] : lexer cs
 
   lexer (c:cs ) 
     | isSpace c       = lexer             (cs)
     | isAlpha c       = lexIdent          (c:cs)
     | isDigit c       = lexNumer          (c:cs)
     | isDoubleQuote c = lexStringLiteral  (cs)
-  lexer _ = [ TokenERROR ]
+  lexer _ = [ Token ERROR "error"]
 
   lexIdent :: String -> [Token]
   lexIdent str = 
     case lexIdent' (str) of
-      Nothing -> [TokenERROR]
+      Nothing -> [Token ERROR "error"]
       Just result ->
-        let (resultToken, restOfStr) = result
-        in  resultToken : lexer (restOfStr) 
+        let (resultToken , restOfStr) = result
+        in  resultToken  : lexer (restOfStr) 
 
   lexIdent' :: String -> Maybe (Token, String)
-  lexIdent' "" = Just (TokenIDENT (""), "")
+  lexIdent' "" = Just (Token IDENT (""), "")
   lexIdent' (c:cs)
     | isAlphaNum c =             --continue recursion 
         case lexIdent' cs of
-          Just (TokenIDENT (id), rest) -> Just (TokenIDENT(c:id), rest)
+          Just (Token IDENT id, rest) -> Just (Token IDENT (c:id), rest)
           Nothing         -> Nothing
-    | isSpace c = Just (TokenIDENT "", cs)  --end recursion successfully
-    | otherwise = Nothing        --end recursion unsuccessfully
+    | isSpace c = Just (Token IDENT "", cs)  --end recursion successfully
+    | otherwise = Nothing        --end recursion unsuccessfulxy
 
-  lexNumer :: String -> [Token]
+  lexNumer :: String -> [Token ]
   lexNumer str = 
     let
       (num, sep, rest) = lexNumer' str
     in case sep of
-      ' ' -> TokenINTLIT (read num :: Integer) : lexer rest
+      ' ' -> Token INTLIT num : lexer rest
+      '\t' -> Token INTLIT num : lexer rest
+      '\n' -> Token INTLIT num : lexer rest
       '.' -> lexFloat (num, rest)
-      otherwise  -> [TokenERROR]
+      otherwise  -> [Token ERROR (sep:" ferror")]
       
   lexNumer' :: String -> (String, Char, String)
   lexNumer' [] = ("", ' ', "")
@@ -94,10 +95,10 @@ module Hskonfidence.Lexer
   lexFloat :: (String, String) -> [Token]
   lexFloat (numToNow, rest) = 
     case lexFloat' rest of
-      Nothing -> [TokenERROR]
+      Nothing -> [Token ERROR "error"]
       Just result ->
         let (fPartResult, restOfString) = result
-        in TokenFLOLIT (read (numToNow ++ "." ++ fPartResult) :: Float) : lexer restOfString
+        in Token FLOLIT (numToNow ++ "." ++ fPartResult) : lexer restOfString
 
   lexFloat' :: String -> Maybe(String, String)
   lexFloat' "" = Just ("", "")
@@ -112,15 +113,15 @@ module Hskonfidence.Lexer
   lexStringLiteral :: String -> [Token]
   lexStringLiteral str =
     case lexStringLiteral' str of
-      Nothing -> [TokenERROR]
+      Nothing -> [Token ERROR "error"]
       Just (resultToken, rest) -> resultToken : lexer rest
 
   lexStringLiteral' :: String -> Maybe (Token, String)
   lexStringLiteral' [] = Nothing
-  lexStringLiteral' ('"':cs) = Just (TokenSTRLIT "", cs)
+  lexStringLiteral' ('"':cs) = Just (Token STRLIT "", cs)
   lexStringLiteral' (c:cs) =
     case lexStringLiteral' cs of
-      Just (TokenSTRLIT (strLit), rest) -> Just (TokenSTRLIT(c:strLit), rest)
+      Just (Token STRLIT (strLit), rest) -> Just (Token STRLIT (c:strLit), rest)
       Nothing -> Nothing
 
   ----Convenience methods
