@@ -5,17 +5,18 @@ module Hskonfidence.Token
   ) where
 
   data Token = Token TokenType String
+    deriving (Show)
 
-  instance Show Token where
-    show (Token ERROR lexeme) = 
-      (show lexeme) ++ " **unrecognized lexeme"
-    show (Token tokenType lexeme) = 
-      (show lexeme) ++ " Token" ++ (show tokenType) ++ " " ++ (show $ fromEnum $ tokenType)
+ --  instance Show Token where
+ --    show (Token ERROR lexeme) = 
+ --     (show lexeme) ++ " **unrecognized lexeme"
+ --   show (Token tokenType lexeme) = 
+ --     (show lexeme) ++ " Token" ++ (show tokenType) ++ " " ++ (show $ fromEnum $ tokenType)
 
-    showList [] = showString ""
-    showList (x:xs) = shows x . showl xs
-                      where showl [] = showChar ' '
-                            showl (x:xs) = showChar '\n' . shows x . showl xs
+ --   showList [] = showString ""
+ --   showList (x:xs) = shows x . showl xs
+ --                     where showl [] = showChar ' '
+ --                           showl (x:xs) = showChar '\n' . shows x . showl xs
 
   data TokenType = 
     Reserved          | --T0  UNUSED
@@ -34,12 +35,12 @@ module Hskonfidence.Token
     FDIV              | --T13 Float division op.    //
     MOD               | --T14 Modulo operator       %
     ASSIGN            | --T15 Assignment operator   is
-    TEQ                | --T16 Equality operator     isis
+    TEQ               | --T16 Equality operator     isis
     NE                | --T17 Inequality operator   isnt
     LE                | --T18 Less-than-equals op.  <=
-    TLT                | --T19 Less-than op.         <
+    TLT               | --T19 Less-than op.         <
     GE                | --T20 Greater-than-equals   >=
-    TGT                | --T21 Greater-than op.      >
+    TGT               | --T21 Greater-than op.      >
     AND               | --T22 Boolean AND op.       and
     OR                | --T23 Boolean OR op.        or
     NOT               | --T24 Boolean NOT op.       not
@@ -59,4 +60,4 @@ module Hskonfidence.Token
     STRLIT            | --T38 String literal        "[a-zA-Z]*"
     EOF               |
     ERROR
-      deriving (Show, Enum)
+      deriving (Eq, Show, Enum)
