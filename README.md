@@ -7,18 +7,15 @@ The Haskell Platform may be obtained from http://hackage.haskell.org/platform.
 A set of Bash scripts are provided for compilation and execution.  Please note that the executable is NOT included with the distribution, as it was compiled for Mac OS X and will likely not run on other platforms.  
 runhaskell Setup.hs build will run the Cabal build script.  
 ./run.sh sets up a small interactive console into which the user may enter the paths of valid confidence? source files and uses hskonf to perform lexical analysis on them.  
-The hskonf interpreter operation is documented in README.md.  
 ###Code and Test Cases
 The following is a listing of all source files included in the package:  
 
 + tests.c?
-+  Main.hs
-+  Setup.hs
-+  hskonfidence.cabal
-+  README.md
++ Main.hs
++ Setup.hs
++ hskonfidence.cabal
++ README.md
 + /Hskonfidence
  + Lexer.hs
- +  Token.hs
-
-The test package included with this program is /tests.c?, and demonstrates lexer performance on a variety of valid and invalid lexemes.  Sample test output is included in /testOut.txt
-Correct lexer performance was verified on all token types, as well as correct failure on unreadable lexemes.
+ + Token.hs
+ + Parser.hs
