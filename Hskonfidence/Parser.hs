@@ -84,7 +84,7 @@ module Hskonfidence.Parser
 
 
   designator :: Parser Designator
-  designator = designator' -- <|> arraydesignator
+  designator = designator' <|> arraydesignator
 
   designator' :: Parser Designator
   designator' = do {id <- identifier; return (Designator id) }

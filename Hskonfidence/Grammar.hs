@@ -1,5 +1,6 @@
 module Hskonfidence.Grammar
   where
+
   data Program = 
     Program         [Declaration] [Statement]
     deriving (Show)
