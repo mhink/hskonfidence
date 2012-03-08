@@ -1,9 +1,9 @@
 import System.Environment
-import Hskonfidence.Token
 import Hskonfidence.Lexer
+import Hskonfidence.Parser
 import System.IO
 
 main :: IO ()
 main = do
   s <- hGetContents stdin
-  (putStrLn . show . lexer) s
+  (putStrLn . show . fst . head . eval (program) . lexer) s

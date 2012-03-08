@@ -1,0 +1,8 @@
+int i ?
+float sum ?
+
+i is 1 ?
+sum is 0.0 ?
+maybe ( sum < 4 ) {
+  sum is ( sum + 1 ) ?
+  }

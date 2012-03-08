@@ -41,10 +41,10 @@ module Hskonfidence.Parser
                           (t:ts) -> [(t, ts)])
 
   token :: TokenType -> Parser Token
-  token tt =  do  Token tt' str <- item 
-                  if tt == tt'
-                  then return (Token tt' str)
-                  else mzero
+  token tt =  do Token tt' str <- item 
+                 case tt == tt' of
+                    True -> return (Token tt' str)
+                    False -> mzero
 
   many :: Parser a -> Parser [a]
   many p = many1 p <|> return []

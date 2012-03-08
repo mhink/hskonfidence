@@ -54,7 +54,6 @@ module Hskonfidence.Grammar
     FactorExpression      Expression  |
     FactorNotOp           NotOp Factor
     deriving (Show)
-    
 
   data NotOp    = Not
     deriving (Show)
