@@ -4,6 +4,12 @@ module Hskonfidence.Parser
   import Control.Monad
   import Hskonfidence.Token
   import Hskonfidence.Grammar
+  import qualified Data.Binary as Binary
+  import qualified Data.ByteString.Lazy as BS
+  import Data.Word
+
+  getBytes :: Binary.Binary a => a -> [Word8]
+  getBytes val = (BS.unpack . Binary.encode) val
   
   newtype Parser a = Parser ([Token] -> [(a, [Token])])
   eval (Parser pf) = pf
@@ -59,6 +65,7 @@ module Hskonfidence.Parser
                   return (Just result) } <|>
             return Nothing
 
+
   identifier :: Parser Identifier
   identifier = do Token IDENT str <- (token IDENT)
                   return (Identifier str)
@@ -74,13 +81,13 @@ module Hskonfidence.Parser
                 token RPAREN;
                 return (FactorExpression expr) }      <|>
            do { Token INTLIT lit <- token INTLIT; 
-                return (FactorINTLIT (read lit)) }    <|>
+                return (FactorINTLIT (getBytes $ ((read lit) :: Word16))) }    <|>
            do { Token FLOLIT lit <- token FLOLIT;
-                return (FactorFLOLIT (read lit)) }    <|>
+                return (FactorFLOLIT (getBytes $ ((read lit) :: Float))) }    <|>
            do { Token CHRLIT lit <- token CHRLIT;
-                return (FactorCHARLIT (head lit)) }   <|>
+                return (FactorCHARLIT (getBytes $ head lit)) }   <|>
            do { Token STRLIT lit <- token STRLIT;
-                return (FactorSTRLIT lit) }
+                return (FactorSTRLIT (getBytes $ lit)) }
 
 
   designator :: Parser Designator

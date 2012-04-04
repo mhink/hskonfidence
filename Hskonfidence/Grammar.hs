@@ -1,13 +1,15 @@
 module Hskonfidence.Grammar
   where
 
+  import Data.Word
+
   data Program = 
     Program         [Declaration] [Statement]
-    deriving (Show)
+    deriving (Show, Eq)
 
   data Declaration =
     Declaration     Type Identifier
-    deriving (Show)
+    deriving (Show, Eq)
 
   data Statement =
     Input           Designator              |
@@ -15,57 +17,60 @@ module Hskonfidence.Grammar
     Assignment      Designator Expression   |
     If              Expression [Statement]  |
     While           Expression [Statement]
-    deriving (Show)
+    deriving (Show, Eq)
 
   data Type = 
     SimpleInt                               |
     SimpleFloat                             |
     SimpleChar                              |
-    ArrayType       (Maybe Int) Type  
-    deriving (Show)
+    ArrayType       (Maybe Int) Type        |
+    SimpleBoolean                           |
+    SimpleString                            |
+    EvaluationFailure String
+    deriving (Show, Eq)
 
   data Identifier =
     Identifier      String
-    deriving (Show)
+    deriving (Show, Eq)
 
   data Designator =
     Designator      Identifier              |
     ArrayDesignator Identifier Expression
-    deriving (Show)
+    deriving (Show, Eq)
 
   data Expression =
     Expression      SimpleExpr [(RelOp, SimpleExpr)]
-    deriving (Show)
+    deriving (Show, Eq)
 
   data SimpleExpr =
     SimpleExpr      (Maybe UnaryOp) Term [(AddOp, Term)]
-    deriving (Show)
+    deriving (Show, Eq)
 
   data Term =
     Term            Factor [(MulOp, Factor)]
-    deriving (Show)
+    deriving (Show, Eq)
 
   data Factor =
-    FactorINTLIT          Int         |
-    FactorFLOLIT          Float       |
-    FactorCHARLIT         Char        |
-    FactorSTRLIT          String      |
+    FactorINTLIT          [Word8]     |
+    FactorFLOLIT          [Word8]     |
+    FactorCHARLIT         [Word8]     |
+    FactorSTRLIT          [Word8]     |
     FactorDesignator      Designator  |
     FactorExpression      Expression  |
     FactorNotOp           NotOp Factor
-    deriving (Show)
+    deriving (Show, Eq)
 
   data NotOp    = Not
-    deriving (Show)
+    deriving (Show, Eq)
 
   data UnaryOp  = Neg
-    deriving (Show)
+    deriving (Show, Eq)
 
   data RelOp    = Equal | Unequal | Less | LessEqual | Greater | GreaterEqual
-    deriving (Show)
+    deriving (Show, Eq)
 
   data AddOp    = Plus | Minus | Or
-    deriving (Show)
+    deriving (Show, Eq)
 
   data MulOp    = Times | Div | FDiv | Mod | And
-    deriving (Show)
+    deriving (Show, Eq)

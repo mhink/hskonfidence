@@ -6,6 +6,7 @@ Homepage:           http://www.github.com/mhink/hskonfidence
 Synopsis:           Confidence? interpreter written in Haskell
 Build-type:         Simple
 Stability:          Experimental
+Cabal-Version:      >= 1.2
 
 Source-repository head
   type:             git
@@ -14,4 +15,9 @@ Source-repository head
 Executable hskonf
   main-is:          Main.hs
   other-modules:    Hskonfidence.Lexer
-  build-depends:    base
+  build-depends:    base,
+                    mtl,
+                    bytestring,
+                    ghc-binary,
+                    array,
+                    containers
