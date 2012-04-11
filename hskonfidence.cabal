@@ -1,5 +1,5 @@
 Name:               hskonfidence
-Version:            0.0.1
+Version:            0.4.0
 Author:             Matt Hink
 Maintainer:         mhink1103@gmail.com
 Homepage:           http://www.github.com/mhink/hskonfidence
@@ -14,7 +14,14 @@ Source-repository head
 
 Executable hskonf
   main-is:          Main.hs
-  other-modules:    Hskonfidence.Lexer
+  other-modules:    Hskonfidence.Lexer,
+                    Hskonfidence.Token,
+                    Hskonfidence.Grammar,
+                    Hskonfidence.Parser,
+                    Hskonfidence.Interpreter,
+                    Hskonfidence.Parser.RealParser,
+                    Hskonfidence.Parser.EBNFParsers,
+                    Hskonfidence.Parser.GrammarParsers
   build-depends:    base,
                     mtl,
                     bytestring,
