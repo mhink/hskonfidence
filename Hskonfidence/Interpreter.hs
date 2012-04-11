@@ -16,8 +16,8 @@ module Hskonfidence.Interpreter
   import Data.Word
   import Hskonfidence.Grammar
 
-  -- TYPES -- Type declarations
-  type Reference      = (Type, MemAddress)
+  -- TYPES -- Datatype declarations
+  type Reference      = (Datatype, MemAddress)
   type MemAddress     = Int
 
   type SymbolTable    = Map.Map String Reference
@@ -28,11 +28,11 @@ module Hskonfidence.Interpreter
 
   -- DATA -- Data declarations
   data ExpressionResult =
-    SimpleInt16Data   Int16   |
-    SimpleFloatData   Float   |
-    SimpleCharData    Char    | 
-    SimpleStringData  String  |
-    SimpleBoolData    Bool    |
+    HskInt16Data   Int16   |
+    HskFloatData   Float   |
+    HskCharData    Char    | 
+    HskStringData  String  |
+    HskBoolData    Bool    |
     Error             String
     deriving (Show)
 
@@ -70,11 +70,33 @@ module Hskonfidence.Interpreter
        expressionResult <- evaluate expression
        if (dtype == (typeOf expressionResult))
          then writeMemory addr (size dtype) (getBytes expressionResult)
-         else fail "Type mismatch in assignment statement"
+         else fail "Datatype mismatch in assignment statement"
+  
+  execute (Input designator) =
+    do (dtype, addr) <- symbolTableLookup designator
+       res <- readConsole dtype
+       writeMemory addr (size dtype) (getBytes res)
 
   execute (Output expressions) =
     do results <- evaluateAll expressions
        mapM_ (\r -> console r) results
+       
+  execute (If expression statements) =
+    do console "Evaluating if-statement"
+       result <- evaluate expression
+       case result of
+         HskBoolData True  -> executeAll statements
+         HskBoolData False -> return ()
+         otherwise            -> fail "Maybe-expression must evaluate to boolean"
+
+  execute (While expression statements) =
+    do console "Evaluating while-statement"
+       result <- evaluate expression
+       case result of
+         HskBoolData True  -> do executeAll statements
+                                 execute (While expression statements)
+         HskBoolData False -> return ()
+         otherwise            -> fail "Whilst-expression must evaluate to boolean"
 
   -- Map an evaluation over several expressions
   evaluateAll :: [Expression] -> Interpreter [ExpressionResult]
@@ -106,9 +128,10 @@ module Hskonfidence.Interpreter
 
   evalFactor factor = 
     do case factor of
-         FactorINTLIT val   -> return (getFromBytes SimpleInt val)
-         FactorFLOLIT val   -> return (getFromBytes SimpleFloat val)
-         FactorCHARLIT val  -> return (getFromBytes SimpleChar val)
+         FactorINTLIT val   -> return (HskInt16Data (read val :: Int16))
+         FactorFLOLIT val   -> return (HskFloatData (read val :: Float))
+         FactorCHRLIT val   -> return (HskCharData  (head val))
+         FactorSTRLIT val   -> return (HskStringData val)
   
   -- COMB -- Combination functions
 
@@ -127,197 +150,197 @@ module Hskonfidence.Interpreter
     do rt2 <- evalTerm t2
        return ((addop op) rt1 rt2)
 
-  hskand (SimpleBoolData b1) (SimpleBoolData b2)
-    = SimpleBoolData (and [b1, b2])
+  hskand (HskBoolData b1) (HskBoolData b2)
+    = HskBoolData (and [b1, b2])
 
   hskand _ _ = Error "Undefined operation (and)"
 
-  hskor (SimpleBoolData b1) (SimpleBoolData b2)
-    = SimpleBoolData (or [b1, b2])
+  hskor (HskBoolData b1) (HskBoolData b2)
+    = HskBoolData (or [b1, b2])
 
   hskor _ _ = Error "Undefined operation (or)"
 
-  greaterequal (SimpleInt16Data i1) (SimpleInt16Data i2) 
-    = SimpleBoolData (i1 >= i2)
+  greaterequal (HskInt16Data i1) (HskInt16Data i2) 
+    = HskBoolData (i1 >= i2)
 
-  greaterequal (SimpleFloatData f1) (SimpleFloatData f2) 
-    = SimpleBoolData (f1 >= f2)
+  greaterequal (HskFloatData f1) (HskFloatData f2) 
+    = HskBoolData (f1 >= f2)
 
-  greaterequal (SimpleInt16Data i1) (SimpleFloatData f2) 
+  greaterequal (HskInt16Data i1) (HskFloatData f2) 
     = let f1 = fromIntegral i1 :: Float
-      in SimpleBoolData (f1 >= f2)
+      in HskBoolData (f1 >= f2)
 
-  greaterequal (SimpleFloatData f1) (SimpleInt16Data i2) 
+  greaterequal (HskFloatData f1) (HskInt16Data i2) 
     = let f2 = fromIntegral i2 :: Float
-      in SimpleBoolData (f1 >= f2)
+      in HskBoolData (f1 >= f2)
 
   greaterequal _ _ = Error "Undefined operation (greaterequal)"
 
-  greater (SimpleInt16Data i1) (SimpleInt16Data i2) 
-    = SimpleBoolData (i1 > i2)
+  greater (HskInt16Data i1) (HskInt16Data i2) 
+    = HskBoolData (i1 > i2)
 
-  greater (SimpleFloatData f1) (SimpleFloatData f2) 
-    = SimpleBoolData (f1 > f2)
+  greater (HskFloatData f1) (HskFloatData f2) 
+    = HskBoolData (f1 > f2)
 
-  greater (SimpleInt16Data i1) (SimpleFloatData f2) 
+  greater (HskInt16Data i1) (HskFloatData f2) 
     = let f1 = fromIntegral i1 :: Float
-      in SimpleBoolData (f1 > f2)
+      in HskBoolData (f1 > f2)
 
-  greater (SimpleFloatData f1) (SimpleInt16Data i2) 
+  greater (HskFloatData f1) (HskInt16Data i2) 
     = let f2 = fromIntegral i2 :: Float
-      in SimpleBoolData (f1 > f2)
+      in HskBoolData (f1 > f2)
 
   greater _ _ = Error "Undefined operation (greater)"
 
-  lessequal (SimpleInt16Data i1) (SimpleInt16Data i2) 
-    = SimpleBoolData (i1 <= i2)
+  lessequal (HskInt16Data i1) (HskInt16Data i2) 
+    = HskBoolData (i1 <= i2)
 
-  lessequal (SimpleFloatData f1) (SimpleFloatData f2) 
-    = SimpleBoolData (f1 <= f2)
+  lessequal (HskFloatData f1) (HskFloatData f2) 
+    = HskBoolData (f1 <= f2)
 
-  lessequal (SimpleInt16Data i1) (SimpleFloatData f2) 
+  lessequal (HskInt16Data i1) (HskFloatData f2) 
     = let f1 = fromIntegral i1 :: Float
-      in SimpleBoolData (f1 <= f2)
+      in HskBoolData (f1 <= f2)
 
-  lessequal (SimpleFloatData f1) (SimpleInt16Data i2) 
+  lessequal (HskFloatData f1) (HskInt16Data i2) 
     = let f2 = fromIntegral i2 :: Float
-      in SimpleBoolData (f1 <= f2)
+      in HskBoolData (f1 <= f2)
 
   lessequal _ _ = Error "Undefined operation (lessequal)"
 
-  less (SimpleInt16Data i1) (SimpleInt16Data i2) 
-    = SimpleBoolData (i1 < i2)
+  less (HskInt16Data i1) (HskInt16Data i2) 
+    = HskBoolData (i1 < i2)
 
-  less (SimpleFloatData f1) (SimpleFloatData f2) 
-    = SimpleBoolData (f1 < f2)
+  less (HskFloatData f1) (HskFloatData f2) 
+    = HskBoolData (f1 < f2)
 
-  less (SimpleInt16Data i1) (SimpleFloatData f2) 
+  less (HskInt16Data i1) (HskFloatData f2) 
     = let f1 = fromIntegral i1 :: Float
-      in SimpleBoolData (f1 < f2)
+      in HskBoolData (f1 < f2)
 
-  less (SimpleFloatData f1) (SimpleInt16Data i2) 
+  less (HskFloatData f1) (HskInt16Data i2) 
     = let f2 = fromIntegral i2 :: Float
-      in SimpleBoolData (f1 < f2)
+      in HskBoolData (f1 < f2)
 
   less _ _ = Error "Undefined operation (less)"
 
-  unequal (SimpleInt16Data i1) (SimpleInt16Data i2) 
-    = SimpleBoolData (i1 /= i2)
+  unequal (HskInt16Data i1) (HskInt16Data i2) 
+    = HskBoolData (i1 /= i2)
 
-  unequal (SimpleFloatData f1) (SimpleFloatData f2) 
-    = SimpleBoolData (f1 /= f2)
+  unequal (HskFloatData f1) (HskFloatData f2) 
+    = HskBoolData (f1 /= f2)
 
-  unequal (SimpleInt16Data i1) (SimpleFloatData f2) 
+  unequal (HskInt16Data i1) (HskFloatData f2) 
     = let f1 = fromIntegral i1 :: Float
-      in SimpleBoolData (f1 /= f2)
+      in HskBoolData (f1 /= f2)
 
-  unequal (SimpleFloatData f1) (SimpleInt16Data i2) 
+  unequal (HskFloatData f1) (HskInt16Data i2) 
     = let f2 = fromIntegral i2 :: Float
-      in SimpleBoolData (f1 /= f2)
+      in HskBoolData (f1 /= f2)
 
-  unequal (SimpleBoolData b1) (SimpleBoolData b2)
-    = SimpleBoolData (b1 /= b2)
+  unequal (HskBoolData b1) (HskBoolData b2)
+    = HskBoolData (b1 /= b2)
 
   unequal _ _ = Error "Undefined operation (unequal)"
 
-  equal (SimpleInt16Data i1) (SimpleInt16Data i2) 
-    = SimpleBoolData (i1 == i2)
+  equal (HskInt16Data i1) (HskInt16Data i2) 
+    = HskBoolData (i1 == i2)
 
-  equal (SimpleFloatData f1) (SimpleFloatData f2) 
-    = SimpleBoolData (f1 == f2)
+  equal (HskFloatData f1) (HskFloatData f2) 
+    = HskBoolData (f1 == f2)
 
-  equal (SimpleInt16Data i1) (SimpleFloatData f2) 
+  equal (HskInt16Data i1) (HskFloatData f2) 
     = let f1 = fromIntegral i1 :: Float
-      in SimpleBoolData (f1 == f2)
+      in HskBoolData (f1 == f2)
 
-  equal (SimpleFloatData f1) (SimpleInt16Data i2) 
+  equal (HskFloatData f1) (HskInt16Data i2) 
     = let f2 = fromIntegral i2 :: Float
-      in SimpleBoolData (f1 == f2)
+      in HskBoolData (f1 == f2)
 
-  equal (SimpleBoolData b1) (SimpleBoolData b2)
-    = SimpleBoolData (b1 == b2)
+  equal (HskBoolData b1) (HskBoolData b2)
+    = HskBoolData (b1 == b2)
 
   equal _ _ = Error "Undefined operation (equal)"
 
-  minus (SimpleInt16Data i1) (SimpleInt16Data i2) 
-    = SimpleInt16Data (i1 - i2)
+  minus (HskInt16Data i1) (HskInt16Data i2) 
+    = HskInt16Data (i1 - i2)
 
-  minus (SimpleFloatData f1) (SimpleFloatData f2) 
-    = SimpleFloatData (f1 - f2)
+  minus (HskFloatData f1) (HskFloatData f2) 
+    = HskFloatData (f1 - f2)
 
-  minus (SimpleInt16Data i1) (SimpleFloatData f2) 
+  minus (HskInt16Data i1) (HskFloatData f2) 
     = let f1 = fromIntegral i1 :: Float
-      in SimpleFloatData (f1 - f2)
+      in HskFloatData (f1 - f2)
 
-  minus (SimpleFloatData f1) (SimpleInt16Data i2) 
+  minus (HskFloatData f1) (HskInt16Data i2) 
     = let f2 = fromIntegral i2 :: Float
-      in SimpleFloatData (f1 - f2)
+      in HskFloatData (f1 - f2)
 
   minus _ _ = Error "Undefined operation (minus)"
 
-  plus (SimpleInt16Data i1) (SimpleInt16Data i2) 
-    = SimpleInt16Data (i1 + i2)
+  plus (HskInt16Data i1) (HskInt16Data i2) 
+    = HskInt16Data (i1 + i2)
 
-  plus (SimpleFloatData f1) (SimpleFloatData f2) 
-    = SimpleFloatData (f1 + f2)
+  plus (HskFloatData f1) (HskFloatData f2) 
+    = HskFloatData (f1 + f2)
 
-  plus (SimpleInt16Data i1) (SimpleFloatData f2) 
+  plus (HskInt16Data i1) (HskFloatData f2) 
     = let f1 = fromIntegral i1 :: Float
-      in SimpleFloatData (f1 + f2)
+      in HskFloatData (f1 + f2)
 
-  plus (SimpleFloatData f1) (SimpleInt16Data i2) 
+  plus (HskFloatData f1) (HskInt16Data i2) 
     = let f2 = fromIntegral i2 :: Float
-      in SimpleFloatData (f1 + f2)
+      in HskFloatData (f1 + f2)
 
   plus _ _ = Error "Undefined operation (plus)"
 
-  fdiv (SimpleInt16Data i1) (SimpleInt16Data i2) 
+  fdiv (HskInt16Data i1) (HskInt16Data i2) 
     = let f1 = fromIntegral i1 :: Float
           f2 = fromIntegral i2 :: Float
-      in SimpleFloatData (f1 / f2)
+      in HskFloatData (f1 / f2)
 
-  fdiv (SimpleFloatData f1) (SimpleFloatData f2) 
-    = SimpleFloatData (f1 / f2)
+  fdiv (HskFloatData f1) (HskFloatData f2) 
+    = HskFloatData (f1 / f2)
 
-  fdiv (SimpleInt16Data i1) (SimpleFloatData f2) 
+  fdiv (HskInt16Data i1) (HskFloatData f2) 
     = let f1 = fromIntegral i1 :: Float
-      in SimpleFloatData (f1 / f2)
+      in HskFloatData (f1 / f2)
 
-  fdiv (SimpleFloatData f1) (SimpleInt16Data i2) 
+  fdiv (HskFloatData f1) (HskInt16Data i2) 
     = let f2 = fromIntegral i2 :: Float
-      in SimpleFloatData (f1 / f2)
+      in HskFloatData (f1 / f2)
 
   fdiv _ _ = Error "Undefined operation (fdiv)"
 
-  idiv (SimpleInt16Data i1) (SimpleInt16Data i2) 
-    = SimpleInt16Data (i1 `div` i2)
+  idiv (HskInt16Data i1) (HskInt16Data i2) 
+    = HskInt16Data (i1 `div` i2)
 
-  idiv (SimpleFloatData f1) (SimpleFloatData f2) 
-    = SimpleFloatData (f1 / f2)
+  idiv (HskFloatData f1) (HskFloatData f2) 
+    = HskFloatData (f1 / f2)
 
-  idiv (SimpleInt16Data i1) (SimpleFloatData f2) 
+  idiv (HskInt16Data i1) (HskFloatData f2) 
     = let f1 = fromIntegral i1 :: Float
-      in SimpleFloatData (f1 / f2)
+      in HskFloatData (f1 / f2)
 
-  idiv (SimpleFloatData f1) (SimpleInt16Data i2) 
+  idiv (HskFloatData f1) (HskInt16Data i2) 
     = let f2 = fromIntegral i2 :: Float
-      in SimpleFloatData (f1 / f2)
+      in HskFloatData (f1 / f2)
 
   idiv _ _ = Error "Undefined operation (idiv)" 
 
-  times (SimpleInt16Data i1) (SimpleInt16Data i2) 
-    = SimpleInt16Data (i1 * i2)
+  times (HskInt16Data i1) (HskInt16Data i2) 
+    = HskInt16Data (i1 * i2)
 
-  times (SimpleFloatData f1) (SimpleFloatData f2) 
-    = SimpleFloatData (f1 * f2)
+  times (HskFloatData f1) (HskFloatData f2) 
+    = HskFloatData (f1 * f2)
 
-  times (SimpleInt16Data i1) (SimpleFloatData f2) 
+  times (HskInt16Data i1) (HskFloatData f2) 
     = let f1 = fromIntegral i1 :: Float
-      in SimpleFloatData (f1 * f2)
+      in HskFloatData (f1 * f2)
 
-  times (SimpleFloatData f1) (SimpleInt16Data i2) 
+  times (HskFloatData f1) (HskInt16Data i2) 
     = let f2 = fromIntegral i2 :: Float
-      in SimpleFloatData (f1 * f2)
+      in HskFloatData (f1 * f2)
 
   times _ _ = Error "Undefined operation (times)"
 
@@ -340,7 +363,7 @@ module Hskonfidence.Interpreter
   -- CONV -- Convenience functions
   -- map-accumulate helper function
   macc :: MemAddress -> Declaration -> (MemAddress, (String, Reference))
-  macc addr (Declaration datatype (Identifier idstring)) =
+  macc addr (Declaration datatype idstring) =
     ((addr + size datatype), (idstring, (datatype, addr)))
 
   -- Gets the memory size.
@@ -348,30 +371,30 @@ module Hskonfidence.Interpreter
   memSize = 1024
 
   -- Gets the size of a datatype
-  size :: Type -> Int
-  size SimpleInt = 2
-  size SimpleFloat = 13
-  size SimpleChar = 1
+  size :: Datatype -> Int
+  size HskInt16 = 2
+  size HskFloat = 13
+  size HskChar = 1
   size _ = 0
 
   --Given a data container, resolves its type
-  typeOf :: ExpressionResult -> Type 
-  typeOf (SimpleInt16Data _ ) = SimpleInt
-  typeOf (SimpleFloatData _ ) = SimpleFloat
-  typeOf (SimpleCharData  _ ) = SimpleChar
+  typeOf :: ExpressionResult -> Datatype 
+  typeOf (HskInt16Data _ ) = HskInt16
+  typeOf (HskFloatData _ ) = HskFloat
+  typeOf (HskCharData  _ ) = HskChar
 
-  getFromBytes :: Type -> [Word8] -> ExpressionResult
-  getFromBytes SimpleInt words =
-    SimpleInt16Data (Binary.decode (ByteString.pack words) :: Int16)
-  getFromBytes SimpleFloat words =
-    SimpleFloatData (Binary.decode (ByteString.pack words) :: Float)
-  getFromBytes SimpleChar words =
-    SimpleCharData (Binary.decode (ByteString.pack words) :: Char)
+  getFromBytes :: Datatype -> [Word8] -> ExpressionResult
+  getFromBytes HskInt16 words =
+    HskInt16Data (Binary.decode (ByteString.pack words) :: Int16)
+  getFromBytes HskFloat words =
+    HskFloatData (Binary.decode (ByteString.pack words) :: Float)
+  getFromBytes HskChar words =
+    HskCharData (Binary.decode (ByteString.pack words) :: Char)
 
   getBytes :: ExpressionResult -> [Word8]
-  getBytes (SimpleInt16Data val) = getBytes' val
-  getBytes (SimpleFloatData val) = getBytes' val
-  getBytes (SimpleCharData  val) = getBytes' val
+  getBytes (HskInt16Data val) = getBytes' val
+  getBytes (HskFloatData val) = getBytes' val
+  getBytes (HskCharData  val) = getBytes' val
 
   getBytes' :: Binary.Binary a => (a -> [Word8])
   getBytes' = (ByteString.unpack . Binary.encode)
@@ -379,6 +402,19 @@ module Hskonfidence.Interpreter
   -- Outputs a showable data type to the console.
   console :: Show a => a -> Interpreter ()
   console a = liftIO $ print a
+  
+  readConsole :: Datatype -> Interpreter ExpressionResult
+  readConsole HskInt16 =
+    do str <- liftIO $ getLine
+       return (HskInt16Data (read str :: Int16))
+       
+  readConsole HskFloat =
+    do str <- liftIO $ getLine
+       return (HskFloatData (read str :: Float))
+       
+  readConsole HskChar  =
+    do chr <- liftIO $ getChar
+       return (HskCharData chr)
   
   -- Function for parsing and lexing a string of confidence? source code
   getProgram :: (String -> Program)
@@ -392,14 +428,15 @@ module Hskonfidence.Interpreter
        put (st, mem')
 
   -- Reads a set of bytes from memory
-  readMemory :: MemAddress -> Type -> Interpreter [Word8]
+  readMemory :: MemAddress -> Datatype -> Interpreter [Word8]
   readMemory addr datatype =
     do (st, mem) <- get
        return [(mem ! addr') | addr' <- [addr..(addr + (size datatype  - 1))]]
 
   -- Looks up a designator in the symbol table.
+  -- TODO: ARRAYS
   symbolTableLookup :: Designator -> Interpreter Reference
-  symbolTableLookup (Designator (Identifier idstring)) =
+  symbolTableLookup (Designator idstring _) =
     do (st, mem) <- get
        case Map.lookup idstring st of
          Nothing  -> fail "Symbol table lookup failed."
@@ -412,7 +449,8 @@ module Hskonfidence.Interpreter
 \        int i1 ?                 \
 \        float f1 ?               \
 \        i1 is 5 ?                \
-\        write ( i1 * 5.0 ) ?     \
+\        read ( i1 ) ?              \
+\        write ( i1 * 5.0 , i1 ) ?  \
 \        write ( 2 < 3 ) ?        \
 \        write ( 2 and 'c' ) ?       "
        print "Beginning test."

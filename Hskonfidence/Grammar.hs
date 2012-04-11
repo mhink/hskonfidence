@@ -2,13 +2,14 @@ module Hskonfidence.Grammar
   where
 
   import Data.Word
+  type Identifier = String
 
   data Program = 
     Program         [Declaration] [Statement]
     deriving (Show, Eq)
 
   data Declaration =
-    Declaration     Type Identifier
+    Declaration     Datatype Identifier
     deriving (Show, Eq)
 
   data Statement =
@@ -19,23 +20,17 @@ module Hskonfidence.Grammar
     While           Expression [Statement]
     deriving (Show, Eq)
 
-  data Type = 
-    SimpleInt                               |
-    SimpleFloat                             |
-    SimpleChar                              |
-    ArrayType       (Maybe Int) Type        |
-    SimpleBoolean                           |
-    SimpleString                            |
-    EvaluationFailure String
-    deriving (Show, Eq)
-
-  data Identifier =
-    Identifier      String
+  data Datatype = 
+    HskInt16                               |
+    HskFloat                               |
+    HskChar                                |
+    HskBool                                | 
+    HskString                              |
+    HskArray       [String] Datatype    
     deriving (Show, Eq)
 
   data Designator =
-    Designator      Identifier              |
-    ArrayDesignator Identifier Expression
+    Designator      Identifier [Expression]
     deriving (Show, Eq)
 
   data Expression =
@@ -51,10 +46,10 @@ module Hskonfidence.Grammar
     deriving (Show, Eq)
 
   data Factor =
-    FactorINTLIT          [Word8]     |
-    FactorFLOLIT          [Word8]     |
-    FactorCHARLIT         [Word8]     |
-    FactorSTRLIT          [Word8]     |
+    FactorINTLIT          String      |
+    FactorFLOLIT          String      |
+    FactorCHRLIT          String      |
+    FactorSTRLIT          String      |
     FactorDesignator      Designator  |
     FactorExpression      Expression  |
     FactorNotOp           NotOp Factor
