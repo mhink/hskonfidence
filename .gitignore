@@ -8,3 +8,4 @@ cabal-dev
 .*.swo
 hskonf
 .DS_Store
+*.exe
