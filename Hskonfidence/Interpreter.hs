@@ -33,8 +33,15 @@ module Hskonfidence.Interpreter
     HskCharData    Char    | 
     HskStringData  String  |
     HskBoolData    Bool    |
-    Error             String
-    deriving (Show)
+    Error          String
+  
+  instance Show ExpressionResult where
+    show (HskInt16Data  i) = show i
+    show (HskFloatData  f) = show f
+    show (HskCharData   c) = show c
+    show (HskStringData s) = show s
+    show (HskBoolData   b) = show b
+    show (Error         s) = show s
 
   --INTERPRETER -- Interpreter actions
   --Initializes the interpreter and begins interpretation.
@@ -47,15 +54,13 @@ module Hskonfidence.Interpreter
   --Builds symbol table, executes statements
   program :: Program -> Interpreter ()
   program (Program declarations statements) =
-    do console "Interpreting program."
-       createSymbolTableFrom declarations
+    do createSymbolTableFrom declarations
        executeAll statements
 
   -- Actually builds and returns a symbol table
   createSymbolTableFrom :: [Declaration] -> Interpreter ()
   createSymbolTableFrom declarations =
-    do console "Creating symbol table"
-       ( _ , mem) <- get
+    do ( _ , mem) <- get
        let st = (Map.fromList . snd . Data.List.mapAccumL macc 0) declarations
        put (st, mem)
 
@@ -82,16 +87,14 @@ module Hskonfidence.Interpreter
        mapM_ (\r -> console r) results
        
   execute (If expression statements) =
-    do console "Evaluating if-statement"
-       result <- evaluate expression
+    do result <- evaluate expression
        case result of
          HskBoolData True  -> executeAll statements
          HskBoolData False -> return ()
          otherwise            -> fail "Maybe-expression must evaluate to boolean"
 
   execute (While expression statements) =
-    do console "Evaluating while-statement"
-       result <- evaluate expression
+    do result <- evaluate expression
        case result of
          HskBoolData True  -> do executeAll statements
                                  execute (While expression statements)

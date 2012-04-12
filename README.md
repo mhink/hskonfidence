@@ -20,9 +20,9 @@ The following is a listing of all source files included in the package:
  + parserTest2.c?
 + /Hskonfidence
  + /Parser
-  + EBNFParsers.hs
-  + GrammarParsers.hs
-  + RealParser.hs
+   + EBNFParsers.hs
+   + GrammarParsers.hs
+   + RealParser.hs
  + Lexer.hs
  + Token.hs
  + Parser.hs
