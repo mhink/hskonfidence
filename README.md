@@ -15,16 +15,18 @@ The following is a listing of all source files included in the package:
 + hskonfidence.cabal
 + README.md
 + /tests
- + lexerTests.c?
- + parserTest1.c?
- + parserTest2.c?
+  + lexerTests.cf
+  + parserTest1.cf
+  + parserTest2.cf
+  + interpreterTest.cf
+  + interpreterTest2.cf
 + /Hskonfidence
- + /Parser
-   + EBNFParsers.hs
-   + GrammarParsers.hs
-   + RealParser.hs
- + Lexer.hs
- + Token.hs
- + Parser.hs
- + Grammar.hs
- + Interpreter.hs
+  + /Parser
+    + EBNFParsers.hs
+    + GrammarParsers.hs
+    + RealParser.hs
+  + Lexer.hs
+  + Token.hs
+  + Parser.hs
+  + Grammar.hs
+  + Interpreter.hs
