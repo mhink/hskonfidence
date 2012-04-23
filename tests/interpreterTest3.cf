@@ -1,0 +1,34 @@
+int lowerBound ?
+int upperBound ?
+int i ?
+int j ?
+array int [ 10 ] myArray ?
+
+lowerBound is 0 ?
+upperBound is 9 ?
+i is lowerBound ?
+
+whilst ( i <= upperBound ) {
+  myArray [ i ] is 0 ?
+  write ( "myArray [ " , i , " ] is " , myArray [ i ] ) ?
+  i is i + 1 ?
+}
+
+myArray [ 5 ] is 15 ?
+i is 6 ?
+
+write ( "Please enter an integer value." ) ?
+read ( j ) ?
+
+myArray [ i ] is j ?
+myArray [ 7 ] is myArray [ i ] + myArray [ i - 1 ] ?
+
+maybe ( myArray [ 7 ] < 100 ) {
+  write ( "myArray[7] is " , myArray [ 7 ] ) ?
+}
+
+i is lowerBound ?
+whilst ( i <= upperBound ) {
+  write ( "myArray [ " , i , " ] is " , myArray [ i ] ) ?
+  i is i + 1 ?
+}

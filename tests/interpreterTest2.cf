@@ -31,7 +31,7 @@ write ( "Beginning array output" ) ?
 write ( "ix: " , ix ) ?
 write ( "jx: " , jx ) ?
 write ( "kx: " , kx ) ?
-whilst ( ix < 3 ) {
+whilst ( ix < 4 ) {
   whilst ( jx < 2 ) {
     whilst ( kx < 2 ) {
       temp is ai [ ix ] [ jx ] [ kx ] ?

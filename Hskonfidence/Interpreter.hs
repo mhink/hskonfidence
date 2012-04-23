@@ -463,8 +463,10 @@ module Hskonfidence.Interpreter
         indices <- getIndices indexExprs
         case Map.lookup idstring st of
           Nothing   -> fail "HSK: Symbol table lookup failed." 
-          Just ((HskArray sizes baseType), addr) -> 
-            return (baseType, (adjustedRef sizes indices (size baseType) addr))
+          Just ((HskArray sizes baseType), addr) -> do 
+            if any (\(a, b) -> a >= b) (zip indices sizes)
+              then fail "Array index out of bounds"
+              else return (baseType, (adjustedRef sizes indices (size baseType) addr))
           Just ref -> return ref
 
   adjustedRef :: [Int] -> [Int] -> Int -> Int -> Int
