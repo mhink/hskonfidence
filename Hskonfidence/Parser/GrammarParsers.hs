@@ -36,12 +36,12 @@ array_type =
       sizes    <- many array_size
       return (HskArray sizes datatype')
 
-array_size :: Parser String
+array_size :: Parser Int 
 array_size =
   do  token LBRACK
       intlit' <- string INTLIT
       token RBRACK
-      return intlit'
+      return (read intlit' :: Int)
 
 statement :: Parser Statement
 statement =

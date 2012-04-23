@@ -26,7 +26,7 @@ module Hskonfidence.Grammar
     HskChar                                |
     HskBool                                | 
     HskString                              |
-    HskArray       [String] Datatype    
+    HskArray       [Int] Datatype    
     deriving (Show, Eq)
 
   data Designator =

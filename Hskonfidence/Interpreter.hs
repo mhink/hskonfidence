@@ -15,6 +15,7 @@ module Hskonfidence.Interpreter
   import Data.Maybe
   import Data.Word
   import Hskonfidence.Grammar
+  import System.IO.Unsafe
 
   -- TYPES -- Datatype declarations
   type Reference      = (Datatype, MemAddress)
@@ -378,6 +379,8 @@ module Hskonfidence.Interpreter
   size HskInt16 = 2
   size HskFloat = 13
   size HskChar = 1
+  size (HskArray sizes datatype) =
+    foldl (*) (size datatype) sizes
   size _ = 0
 
   --Given a data container, resolves its type
@@ -385,6 +388,9 @@ module Hskonfidence.Interpreter
   typeOf (HskInt16Data _ ) = HskInt16
   typeOf (HskFloatData _ ) = HskFloat
   typeOf (HskCharData  _ ) = HskChar
+
+  isInt :: ExpressionResult -> Bool
+  isInt er = (typeOf er) == HskInt16
 
   getFromBytes :: Datatype -> [Word8] -> ExpressionResult
   getFromBytes HskInt16 words =
@@ -426,35 +432,61 @@ module Hskonfidence.Interpreter
   -- Writes a set of bytes to memory.
   writeMemory :: MemAddress -> Int -> [Word8] -> Interpreter ()
   writeMemory addr length val =
-    do (st, mem) <- get
+    do (st , mem) <- get
        let mem' = (mem // [(addr + addr', (val !! addr')) | addr' <- [0..((length)-1)]])
        put (st, mem')
 
   -- Reads a set of bytes from memory
   readMemory :: MemAddress -> Datatype -> Interpreter [Word8]
   readMemory addr datatype =
-    do (st, mem) <- get
+    do (_ , mem) <- get
        return [(mem ! addr') | addr' <- [addr..(addr + (size datatype  - 1))]]
 
   -- Looks up a designator in the symbol table.
   -- TODO: ARRAYS
   symbolTableLookup :: Designator -> Interpreter Reference
-  symbolTableLookup (Designator idstring _) =
-    do (st, mem) <- get
-       case Map.lookup idstring st of
-         Nothing  -> fail "Symbol table lookup failed."
-         Just ref -> return ref
+  symbolTableLookup (Designator idstring indexExprs) =
+    do  (st, _ ) <- get
+        indices <- getIndices indexExprs
+        case Map.lookup idstring st of
+          Nothing   -> fail "HSK: Symbol table lookup failed." 
+          Just ((HskArray sizes baseType), addr) -> 
+            return (baseType, (adjustedRef' sizes indices (size baseType) addr))
+          Just ref -> return ref
+
+  adjustedRef :: Reference -> [ExpressionResult] -> Interpreter Reference
+  adjustedRef ((HskArray sizes datatype), addr) indices =
+    do  let indices' = map (\(HskInt16Data int) -> (fromIntegral int)) indices
+        if any (\(a, b) -> a > b) (zip sizes indices')
+          then fail "HSK: array index out of bounds"
+          else fail "TODO: Unimplemented"
+  adjustedRef _ _ = fail "HSK: Attempt to address non-array type"
+
+  adjustedRef' :: [Int] -> [Int] -> Int -> Int -> Int
+  adjustedRef' sizes indices typeSize baseAddr =
+    snd $ foldl
+      (\((i:is), addr) index -> (is, (addr + ((foldl (*) 1 is) * typeSize * index))))
+      (sizes, baseAddr)
+      indices
+
+  getIndices :: [Expression] -> Interpreter [Int]
+  getIndices indexExpressions =
+    do  indices <- evaluateAll indexExpressions
+        if any (not . isInt) indices
+          then fail "HSK: Non-integer array index expression"
+          else return (map (\(HskInt16Data int) -> (fromIntegral int)) indices)
 
   -- Tests the functionality of the interpreter.
   test :: IO ()
   test =
     do let fromString = "         \
-\        int i1 ?                 \
-\        float f1 ?               \
-\        i1 is 5 ?                \
-\        read ( i1 ) ?              \
-\        write ( i1 * 5.0 , i1 ) ?  \
-\        write ( 2 < 3 ) ?        \
-\        write ( 2 and 'c' ) ?       "
+\        int ix ?
+\        array int [ 5 ] ai1 ?                 \
+\        
+\        i1 [ 0 ] is 5 ?                \
+\        
+\        write ( i1 [ 1 ]  ) ?  "
        print "Beginning test."
-       interpret $ getProgram fromString
+       let prog = getProgram fromString
+       print prog
+       interpret prog
