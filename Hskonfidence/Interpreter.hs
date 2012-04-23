@@ -57,6 +57,7 @@ module Hskonfidence.Interpreter
   program (Program declarations statements) =
     do createSymbolTableFrom declarations
        executeAll statements
+       console "HSK: Program finished."
 
   -- Actually builds and returns a symbol table
   createSymbolTableFrom :: [Declaration] -> Interpreter ()
@@ -85,7 +86,8 @@ module Hskonfidence.Interpreter
 
   execute (Output expressions) =
     do results <- evaluateAll expressions
-       mapM_ (\r -> console r) results
+       mapM_ (\r -> consolePut r) results
+       console ""
        
   execute (If expression statements) =
     do result <- evaluate expression
@@ -348,10 +350,16 @@ module Hskonfidence.Interpreter
 
   times _ _ = Error "Undefined operation (times)"
 
+  mod' (HskInt16Data i1) (HskInt16Data i2)
+    = HskInt16Data (i1 `mod` i2)
+
+  mod' _ _ = Error "Undefined operation (mod)"
+
   mulop Times = times
   mulop Div   = idiv
   mulop FDiv  = fdiv
   mulop And   = hskand
+  mulop Mod   = mod'
 
   addop Plus  = plus
   addop Minus = minus
@@ -411,6 +419,11 @@ module Hskonfidence.Interpreter
   -- Outputs a showable data type to the console.
   console :: Show a => a -> Interpreter ()
   console a = liftIO $ print a
+
+  consolePut :: Show a => a -> Interpreter ()
+  consolePut a = 
+    do let toWrite = show a
+       liftIO $ putStr toWrite
   
   readConsole :: Datatype -> Interpreter ExpressionResult
   readConsole HskInt16 =
@@ -451,19 +464,11 @@ module Hskonfidence.Interpreter
         case Map.lookup idstring st of
           Nothing   -> fail "HSK: Symbol table lookup failed." 
           Just ((HskArray sizes baseType), addr) -> 
-            return (baseType, (adjustedRef' sizes indices (size baseType) addr))
+            return (baseType, (adjustedRef sizes indices (size baseType) addr))
           Just ref -> return ref
 
-  adjustedRef :: Reference -> [ExpressionResult] -> Interpreter Reference
-  adjustedRef ((HskArray sizes datatype), addr) indices =
-    do  let indices' = map (\(HskInt16Data int) -> (fromIntegral int)) indices
-        if any (\(a, b) -> a > b) (zip sizes indices')
-          then fail "HSK: array index out of bounds"
-          else fail "TODO: Unimplemented"
-  adjustedRef _ _ = fail "HSK: Attempt to address non-array type"
-
-  adjustedRef' :: [Int] -> [Int] -> Int -> Int -> Int
-  adjustedRef' sizes indices typeSize baseAddr =
+  adjustedRef :: [Int] -> [Int] -> Int -> Int -> Int
+  adjustedRef sizes indices typeSize baseAddr =
     snd $ foldl
       (\((i:is), addr) index -> (is, (addr + ((foldl (*) 1 is) * typeSize * index))))
       (sizes, baseAddr)
@@ -480,11 +485,9 @@ module Hskonfidence.Interpreter
   test :: IO ()
   test =
     do let fromString = "         \
-\        int ix ?
+\        int ix ? \
 \        array int [ 5 ] ai1 ?                 \
-\        
 \        i1 [ 0 ] is 5 ?                \
-\        
 \        write ( i1 [ 1 ]  ) ?  "
        print "Beginning test."
        let prog = getProgram fromString

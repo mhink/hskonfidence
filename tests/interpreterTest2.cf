@@ -1,15 +1,52 @@
-int i1 ?
-int i2 ?
-i1 is 10 ?
-write ( “Enter a whole number between 1 and 10.” ) ?
-read ( i2 ) ?
-whilst ( i1 > 0 ) {
-  write ( i1 ) ?
-  maybe ( i1 > i2 ) {
-    write ( “i1 is greater than i2” ) ?
+array int [ 3 ] [ 2 ] [ 2 ] ai ?
+int ix ?
+int jx ?
+int kx ?
+int temp ?
+
+ix is 0 ?
+jx is 0 ?
+kx is 0 ?
+
+write ( " Beginning array assignment. " ) ?
+whilst ( ix < 3 ) {
+  whilst ( jx < 2 ) {
+    whilst ( kx < 2 ) {
+      write ( "Setting array at [ " , ix , " , " , jx , " , " , kx , " ] " ) ?
+      ai [ ix ] [ jx ] [ kx ] is ( ( ix + 1 ) * ( jx + 1 ) * ( kx + 1 ) ) ?
+      kx is kx + 1 ?
+    }
+    kx is 0 ?
+    jx is jx + 1 ?
   }
-  maybe ( i1 <= i2 ) {
-    write ( “i1 is less than or equal to i2” ) ?
+  jx is 0 ?
+  ix is ix + 1 ?
+}
+
+ix is 0 ?
+jx is 0 ?
+kx is 0 ?
+
+write ( "Beginning array output" ) ?
+write ( "ix: " , ix ) ?
+write ( "jx: " , jx ) ?
+write ( "kx: " , kx ) ?
+whilst ( ix < 3 ) {
+  whilst ( jx < 2 ) {
+    whilst ( kx < 2 ) {
+      temp is ai [ ix ] [ jx ] [ kx ] ?
+      write ( "Array at [ " , ix , " , " , jx , " , " , kx , " ] : " , temp ) ?
+      maybe ( ( temp % 2 ) isis 0 ) {
+        write ( " Array value is even. " ) ?
+      }
+      maybe ( ( temp % 2 ) isis 1 ) { 
+        write ( " Array value is odd. " ) ?
+      }
+      kx is kx + 1 ?
+    }
+    kx is 0 ?
+    jx is jx + 1 ?
   }
-  i1 is i1 – 1 ?
+  jx is 0 ?
+  ix is ix + 1 ?
 }
